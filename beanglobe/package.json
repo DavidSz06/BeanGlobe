@@ -1,0 +1,6 @@
+{
+  "name": "beanglobe",
+  "private": true,
+  "description": "BeanGlobe — coffee discovery, reviews & matching platform",
+  "workspaces": ["apps/*"]
+}

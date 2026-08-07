@@ -1,0 +1,17 @@
+-- BeanGlobe schema (Postgres). Built Socratically.
+--
+-- SPINE (decided):
+--   products        (base)  : id, name, brand, type('coffee'|'machine'), timestamps
+--   coffee_details  (1:1)   : product_id PK/FK, flavor_vector, origin, roast_level, tasting_notes
+--   machine_details (1:1)   : product_id PK/FK, pressure_bar, boiler_type, water_capacity, wattage
+--   users                   : + role SET (user/admin/shop-owner)
+--   shops                   : + location (map finder), shop_owner -> users
+--   reviews      -> products.id   (coffee reviews feed taste vector; machine reviews generic)
+--   collections  -> products.id   ('tried' / 'want to try')
+--   prices       -> products.id
+--   images       -> products.id
+--   bookings     -> shops (+ timeslots, state machine)
+--
+-- NOTE: 1:1 enforced by making product_id the PRIMARY KEY of each *_details table.
+--
+-- TODO: build Socratically, table by table.

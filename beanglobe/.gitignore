@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+# env / secrets — NEVER commit these
+.env
+.env.local
+# build output
+dist/
+build/
+# logs
+*.log
+# local image uploads (demo LocalImageStore writes here)
+apps/backend/uploads/
+# OS
+.DS_Store
+Thumbs.db
