@@ -221,7 +221,7 @@ VALUES (
 );
 
 
---TESTING THE MACHINE DETAILS DATABASE
+--TESTING THE MACHINE DETAILS DATABASE--------------------------------------------------------------------------------------------------
 
 INSERT INTO public.products (id, product_type, name)
 VALUES (7, 'coffee', 'Test Coffee');
@@ -295,4 +295,161 @@ VALUES (
     true,
     false,
     9
+);
+
+INSERT INTO public.products (id, product_type, name)
+VALUES
+    (7, 'coffee', 'Test Coffee'),
+    (8, 'machine', 'Test Machine');
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    8,
+    'machine',
+    'semi_automatic',
+    ARRAY['pods'],
+    true,
+    true,
+    false,
+    9
+);
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    8,
+    'machine',
+    'semi_automatic',
+    ARRAY[]::TEXT[],
+    true,
+    true,
+    false,
+    9
+);
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    8,
+    'machine',
+    'capsule',
+    ARRAY['whole_bean'],
+    false,
+    false,
+    false,
+    9
+);
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    8,
+    'machine',
+    'semi_automatic',
+    ARRAY['ground', 'whole_bean'],
+    true,
+    true,
+    false,
+    9
+);
+
+---PRICES AND RETAILERS-------------------------------------------------------------------------------------------------
+
+INSERT INTO public.products (id, product_type, name)
+VALUES (10, 'coffee', 'Test Coffee');
+
+INSERT INTO public.retailers (id, name, website_url, affiliate_id)
+VALUES (1, 'Test Retailer', 'https://example.com', 'AFF123');
+
+INSERT INTO public.prices (
+    product_id,
+    retailer_id,
+    amount,
+    currency,
+    url
+)
+VALUES (
+    10,
+    1,
+    29.99,
+    'RON',
+    'https://example.com/test-coffee'
+);
+
+INSERT INTO public.prices (
+    product_id,
+    retailer_id,
+    amount,
+    currency,
+    url
+)
+VALUES (
+    10,
+    1,
+    -5.00,
+    'RON',
+    'https://example.com/test-coffee'
+);
+
+INSERT INTO public.prices (
+    product_id,
+    retailer_id,
+    amount,
+    currency,
+    url
+)
+VALUES (
+    10,
+    1,
+    29.99,
+    'RON',
+    'https://example.com/test-coffee'
+);
+
+INSERT INTO public.prices (
+    product_id,
+    retailer_id,
+    amount,
+    currency,
+    url
+)
+VALUES (
+    10,
+    1,
+    29.99,
+    'ron',
+    'https://example.com/test'
 );
