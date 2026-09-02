@@ -65,3 +65,59 @@ ALTER TABLE public.products
 ALTER TABLE public.coffee_details
     ENABLE ROW LEVEL SECURITY;
 
+CREATE TABLE public.machine_details (
+    product_id INTEGER NOT NULL,
+
+    product_type TEXT NOT NULL
+        CHECK (product_type = 'machine'),
+
+    machine_type TEXT NOT NULL
+        CHECK (
+            machine_type IN (
+                'manual',
+                'semi_automatic',
+                'superautomatic',
+                'capsule',
+                'filter'
+            )
+        ),
+
+    accepted_forms TEXT[] NOT NULL
+        CHECK (
+            cardinality(accepted_forms) > 0
+            AND accepted_forms <@
+                ARRAY[
+                    'ground',
+                    'whole_bean',
+                    'capsule'
+                ]::TEXT[]
+        ),
+
+    has_grinder BOOLEAN
+        GENERATED ALWAYS AS (
+            'whole_bean' = ANY(accepted_forms)
+        ) STORED,
+
+    has_milk_frother BOOLEAN NOT NULL,
+
+    has_pid BOOLEAN NOT NULL,
+
+    has_dual_boiler BOOLEAN NOT NULL,
+
+    pump_pressure_bar NUMERIC
+        CHECK (pump_pressure_bar > 0),
+
+    PRIMARY KEY (product_id),
+
+    FOREIGN KEY (product_id, product_type)
+        REFERENCES public.products (id, product_type)
+        ON DELETE CASCADE,
+
+    CHECK (
+        machine_type <> 'capsule'
+        OR accepted_forms = ARRAY['capsule']::TEXT[]
+    )
+);
+
+ALTER TABLE public.machine_details
+    ENABLE ROW LEVEL SECURITY;

@@ -1,3 +1,5 @@
+--TESTING THE PRODUCTS AND COFFEE DETAILS DATABASE
+
 INSERT INTO public.products (id, product_type, name)
 VALUES
     (2, 'machine', 'Test Machine'),
@@ -216,4 +218,81 @@ VALUES (
     'blueberry, floral, chocolate',
     8, 9, 8, 7, 8, 7,
     9, 10, 2, 1, 3, 7, 2, 8
+);
+
+
+--TESTING THE MACHINE DETAILS DATABASE
+
+INSERT INTO public.products (id, product_type, name)
+VALUES (7, 'coffee', 'Test Coffee');
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    7,
+    'machine',
+    'semi_automatic',
+    ARRAY['whole_bean', 'ground'],
+    true,
+    true,
+    false,
+    9
+);
+
+-- 1. coffee producthoz próbálunk machine_details-t
+INSERT INTO public.products (id, product_type, name)
+VALUES (7, 'coffee', 'Test Coffee');
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    7,
+    'machine',
+    'semi_automatic',
+    ARRAY['whole_bean', 'ground'],
+    true,
+    true,
+    false,
+    9
+);
+
+-- 2. Érvénytelen accepted_form
+INSERT INTO public.products (id, product_type, name)
+VALUES (8, 'machine', 'Test Machine');
+
+INSERT INTO public.machine_details (
+    product_id,
+    product_type,
+    machine_type,
+    accepted_forms,
+    has_milk_frother,
+    has_pid,
+    has_dual_boiler,
+    pump_pressure_bar
+)
+VALUES (
+    8,
+    'machine',
+    'semi_automatic',
+    ARRAY['pods'],
+    true,
+    true,
+    false,
+    9
 );
