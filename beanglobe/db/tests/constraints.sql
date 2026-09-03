@@ -1,231 +1,79 @@
---TESTING THE PRODUCTS AND COFFEE DETAILS DATABASE
+-- Constraint tests.
+-- Run after schema.sql and seed.sql.
+-- Intended for psql or Supabase CLI.
+-- Run with -v ON_ERROR_STOP=1 so the first failure aborts the file.
 
-INSERT INTO public.products (id, product_type, name)
+BEGIN;
+
+
+-- A test user is created inside the transaction (and rolled back with it),
+-- so the file has no precondition on the database's existing auth state.
+-- The on_auth_user_created trigger fills public.profiles from this row.
+INSERT INTO auth.users (id, email)
+VALUES (
+    '00000000-0000-0000-0000-0000000000aa',
+    'constraint-test@example.invalid'
+);
+
+INSERT INTO public.products (
+    id,
+    product_type,
+    name
+)
 VALUES
-    (2, 'machine', 'Test Machine'),
-    (3, 'coffee', 'Test Coffee'),
-    (4, 'coffee', 'Test Coffee 2'),
-    (5, 'coffee', 'Test Coffee 3');
+    (900, 'machine', 'Constraint Test Machine'),
+    (901, 'coffee', 'Constraint Test Coffee'),
+    (902, 'coffee', 'Constraint Test Coffee 2'),
+    (903, 'coffee', 'Constraint Test Coffee 3');
 
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
+
+INSERT INTO public.retailers (
+    id,
+    name,
+    website_url,
+    affiliate_id
 )
 VALUES (
-    2,
-    'coffee',
-    'whole_bean',
-    'medium',
-    'Brazil',
-    'natural',
-    'test',
-    5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5
-);
-
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
-)
-VALUES (
-    3,
-    'coffee',
-    'whole_bean',
-    'medium',
-    'Ethiopia',
-    'washed',
-    'floral and citrus',
-    8, 8, 7, 9, 8, 7,
-    8, 9, 5, 2, 3, 7, 2, 4
-);
-
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
-)
-VALUES (
-    3,
-    'coffee',
-    'ground',
-    'dark',
-    'Brazil',
-    'natural',
-    'another test',
-    5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5
-);
-
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
-)
-VALUES (
-    4,
-    'coffee',
-    'whole_bean',
-    'medium',
-    'Ethiopia',
-    'natural',
-    'test',
-    16,
-    5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5
-);
-
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
-)
-VALUES (
-    5,
-    'coffee',
-    'whole_bean',
-    'medium',
-    'Brazil',
-    'unknown',
-    'test',
-    5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5
-);
-
-INSERT INTO public.products (id, product_type, name)
-VALUES (6, 'coffee', 'Valid Coffee');
-INSERT INTO public.coffee_details (
-    product_id,
-    product_type,
-    form,
-    roast,
-    origin,
-    process,
-    tasting_notes,
-    aroma,
-    flavor,
-    aftertaste,
-    acidity,
-    sweetness,
-    mouthfeel,
-    floral,
-    fruity,
-    sour_fermented,
-    green_vegetative,
-    roasted,
-    nutty_cocoa,
-    spicy,
-    sweet
-)
-VALUES (
-    6,
-    'coffee',
-    'whole_bean',
-    'medium',
-    'Ethiopia',
-    'natural',
-    'blueberry, floral, chocolate',
-    8, 9, 8, 7, 8, 7,
-    9, 10, 2, 1, 3, 7, 2, 8
+    900,
+    'Constraint Test Retailer',
+    'https://example.com',
+    'constraint_test'
 );
 
 
---TESTING THE MACHINE DETAILS DATABASE--------------------------------------------------------------------------------------------------
+-- machine_details with a coffee product
+DO $$
+BEGIN
+    INSERT INTO public.machine_details (
+        product_id,
+        product_type,
+        machine_type,
+        accepted_forms,
+        has_milk_frother,
+        has_pid,
+        has_dual_boiler,
+        pump_pressure_bar
+    )
+    VALUES (
+        901,
+        'machine',
+        'semi_automatic',
+        ARRAY['ground', 'whole_bean'],
+        true,
+        true,
+        false,
+        9
+    );
 
-INSERT INTO public.products (id, product_type, name)
-VALUES (7, 'coffee', 'Test Coffee');
+    RAISE EXCEPTION 'TEST FAILED: coffee product accepted as machine';
+EXCEPTION
+    WHEN foreign_key_violation THEN
+        NULL;
+END
+$$;
 
+
+-- valid machine_details
 INSERT INTO public.machine_details (
     product_id,
     product_type,
@@ -237,146 +85,7 @@ INSERT INTO public.machine_details (
     pump_pressure_bar
 )
 VALUES (
-    7,
-    'machine',
-    'semi_automatic',
-    ARRAY['whole_bean', 'ground'],
-    true,
-    true,
-    false,
-    9
-);
-
--- 1. coffee producthoz próbálunk machine_details-t
-INSERT INTO public.products (id, product_type, name)
-VALUES (7, 'coffee', 'Test Coffee');
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    7,
-    'machine',
-    'semi_automatic',
-    ARRAY['whole_bean', 'ground'],
-    true,
-    true,
-    false,
-    9
-);
-
--- 2. Érvénytelen accepted_form
-INSERT INTO public.products (id, product_type, name)
-VALUES (8, 'machine', 'Test Machine');
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    8,
-    'machine',
-    'semi_automatic',
-    ARRAY['pods'],
-    true,
-    true,
-    false,
-    9
-);
-
-INSERT INTO public.products (id, product_type, name)
-VALUES
-    (7, 'coffee', 'Test Coffee'),
-    (8, 'machine', 'Test Machine');
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    8,
-    'machine',
-    'semi_automatic',
-    ARRAY['pods'],
-    true,
-    true,
-    false,
-    9
-);
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    8,
-    'machine',
-    'semi_automatic',
-    ARRAY[]::TEXT[],
-    true,
-    true,
-    false,
-    9
-);
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    8,
-    'machine',
-    'capsule',
-    ARRAY['whole_bean'],
-    false,
-    false,
-    false,
-    9
-);
-
-INSERT INTO public.machine_details (
-    product_id,
-    product_type,
-    machine_type,
-    accepted_forms,
-    has_milk_frother,
-    has_pid,
-    has_dual_boiler,
-    pump_pressure_bar
-)
-VALUES (
-    8,
+    900,
     'machine',
     'semi_automatic',
     ARRAY['ground', 'whole_bean'],
@@ -386,14 +95,154 @@ VALUES (
     9
 );
 
----PRICES AND RETAILERS-------------------------------------------------------------------------------------------------
 
-INSERT INTO public.products (id, product_type, name)
-VALUES (10, 'coffee', 'Test Coffee');
+-- invalid accepted_forms
+DO $$
+BEGIN
+    INSERT INTO public.machine_details (
+        product_id,
+        product_type,
+        machine_type,
+        accepted_forms,
+        has_milk_frother,
+        has_pid,
+        has_dual_boiler,
+        pump_pressure_bar
+    )
+    VALUES (
+        900,
+        'machine',
+        'semi_automatic',
+        ARRAY['pods'],
+        true,
+        true,
+        false,
+        9
+    );
 
-INSERT INTO public.retailers (id, name, website_url, affiliate_id)
-VALUES (1, 'Test Retailer', 'https://example.com', 'AFF123');
+    RAISE EXCEPTION 'TEST FAILED: invalid accepted_form was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
 
+
+-- empty accepted_forms
+DO $$
+BEGIN
+    INSERT INTO public.machine_details (
+        product_id,
+        product_type,
+        machine_type,
+        accepted_forms,
+        has_milk_frother,
+        has_pid,
+        has_dual_boiler,
+        pump_pressure_bar
+    )
+    VALUES (
+        900,
+        'machine',
+        'semi_automatic',
+        ARRAY[]::TEXT[],
+        true,
+        true,
+        false,
+        9
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: empty accepted_forms was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- capsule machine with whole_bean
+DO $$
+BEGIN
+    INSERT INTO public.machine_details (
+        product_id,
+        product_type,
+        machine_type,
+        accepted_forms,
+        has_milk_frother,
+        has_pid,
+        has_dual_boiler,
+        pump_pressure_bar
+    )
+    VALUES (
+        900,
+        'machine',
+        'capsule',
+        ARRAY['whole_bean'],
+        false,
+        false,
+        false,
+        9
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: invalid capsule machine was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- empty shop services
+DO $$
+BEGIN
+    INSERT INTO public.shops (
+        id,
+        name,
+        address,
+        location,
+        services
+    )
+    VALUES (
+        900,
+        'Invalid Test Shop',
+        'Test Address',
+        extensions.ST_Point(23.59, 46.77)::extensions.geography,
+        ARRAY[]::TEXT[]
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: empty services was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- invalid shop hours
+DO $$
+BEGIN
+    INSERT INTO public.shop_hours (
+        shop_id,
+        weekday,
+        opens,
+        closes
+    )
+    VALUES (
+        1,
+        1,
+        '18:00',
+        '09:00'
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: invalid shop hours were accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- duplicate price
 INSERT INTO public.prices (
     product_id,
     retailer_id,
@@ -402,13 +251,92 @@ INSERT INTO public.prices (
     url
 )
 VALUES (
-    10,
-    1,
-    29.99,
+    901,
+    900,
+    20.00,
     'RON',
-    'https://example.com/test-coffee'
+    'https://example.com/first'
 );
 
+
+DO $$
+BEGIN
+    INSERT INTO public.prices (
+        product_id,
+        retailer_id,
+        amount,
+        currency,
+        url
+    )
+    VALUES (
+        901,
+        900,
+        25.00,
+        'RON',
+        'https://example.com/second'
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: duplicate price was accepted';
+EXCEPTION
+    WHEN unique_violation THEN
+        NULL;
+END
+$$;
+
+
+-- negative price
+DO $$
+BEGIN
+    INSERT INTO public.prices (
+        product_id,
+        retailer_id,
+        amount,
+        currency,
+        url
+    )
+    VALUES (
+        902,
+        900,
+        -5.00,
+        'RON',
+        'https://example.com/negative'
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: negative amount was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- lowercase currency
+DO $$
+BEGIN
+    INSERT INTO public.prices (
+        product_id,
+        retailer_id,
+        amount,
+        currency,
+        url
+    )
+    VALUES (
+        903,
+        900,
+        10.00,
+        'ron',
+        'https://example.com/lowercase'
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: invalid currency was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- valid price
 INSERT INTO public.prices (
     product_id,
     retailer_id,
@@ -417,252 +345,110 @@ INSERT INTO public.prices (
     url
 )
 VALUES (
-    10,
-    1,
-    -5.00,
+    903,
+    900,
+    10.00,
     'RON',
-    'https://example.com/test-coffee'
+    'https://example.com/valid'
 );
 
-INSERT INTO public.prices (
-    product_id,
-    retailer_id,
-    amount,
-    currency,
-    url
-)
-VALUES (
-    10,
-    1,
-    29.99,
-    'RON',
-    'https://example.com/test-coffee'
-);
 
-INSERT INTO public.prices (
-    product_id,
-    retailer_id,
-    amount,
-    currency,
-    url
-)
-VALUES (
-    10,
-    1,
-    29.99,
-    'ron',
-    'https://example.com/test'
-);
-
---------------------------------SHOPS & SHOP HOURS ------------------------------------------------------------
-
-INSERT INTO public.shops (
-    id,
-    name,
-    address,
-    location,
-    services,
-    is_demo
-)
-VALUES
-(
-    1,
-    'Test Cafe A',
-    'Test Address A',
-    extensions.ST_SetSRID(
-        extensions.ST_Point(23.5899, 46.7696),
-        4326
-    )::extensions.geography,
-    ARRAY['cafe', 'service'],
-    true
-),
-(
-    2,
-    'Test Cafe B',
-    'Test Address B',
-    extensions.ST_SetSRID(
-        extensions.ST_Point(23.6100, 46.7700),
-        4326
-    )::extensions.geography,
-    ARRAY['cafe', 'shop'],
-    true
-);
-
-SELECT id, name
-FROM public.shops
-WHERE extensions.ST_DWithin(
-    location,
-    extensions.ST_SetSRID(
-        extensions.ST_Point(23.5899, 46.7696),
-        4326
-    )::extensions.geography,
-    1000
-);
-
-INSERT INTO public.shops (
-    id,
-    name,
-    address,
-    location,
-    services
-)
-VALUES (
-    3,
-    'Invalid Shop',
-    'Test Address',
-    extensions.ST_SetSRID(
-        extensions.ST_Point(23.5950, 46.7700),
-        4326
-    )::extensions.geography,
-    ARRAY[]::TEXT[]
-);
-
-INSERT INTO public.shop_hours (
-    shop_id,
-    weekday,
-    opens,
-    closes
-)
-VALUES (
-    1,
-    1,
-    '18:00',
-    '09:00'
-);
-
-INSERT INTO public.shop_hours (
-    shop_id,
-    weekday,
-    opens,
-    closes
-)
-VALUES (
-    1,
-    1,
-    '09:00',
-    '18:00'
-);
-
-----------------------------------------------------REVIEWS & COLLECTIONS--------------------------------------------------------------
-
--- Test data
-INSERT INTO public.products (id, product_type, name)
-VALUES
-    (20, 'coffee', 'Review Test Coffee'),
-    (21, 'coffee', 'Rating Test Coffee'),
-    (22, 'coffee', 'Update Test Coffee');
-
-    INSERT INTO public.reviews (
+-- valid review
+INSERT INTO public.reviews (
     profile_id,
     product_id,
     rating,
     body
 )
 VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    20,
+    '00000000-0000-0000-0000-0000000000aa',
+    901,
     5,
-    'Great coffee.'
+    'Valid test review.'
 );
 
-INSERT INTO public.reviews (
-    profile_id,
-    product_id,
-    rating,
-    body
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    20,
-    4,
-    'Second review.'
-);
 
-INSERT INTO public.reviews (
-    profile_id,
-    product_id,
-    rating,
-    body
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    21,
-    6,
-    'Invalid rating.'
-);
+-- duplicate review
+DO $$
+BEGIN
+    INSERT INTO public.reviews (
+        profile_id,
+        product_id,
+        rating,
+        body
+    )
+    VALUES (
+        '00000000-0000-0000-0000-0000000000aa',
+        901,
+        4,
+        'Duplicate test review.'
+    );
 
+    RAISE EXCEPTION 'TEST FAILED: duplicate review was accepted';
+EXCEPTION
+    WHEN unique_violation THEN
+        NULL;
+END
+$$;
+
+
+-- invalid rating
+DO $$
+BEGIN
+    INSERT INTO public.reviews (
+        profile_id,
+        product_id,
+        rating,
+        body
+    )
+    VALUES (
+        '00000000-0000-0000-0000-0000000000aa',
+        902,
+        6,
+        'Invalid rating.'
+    );
+
+    RAISE EXCEPTION 'TEST FAILED: invalid rating was accepted';
+EXCEPTION
+    WHEN check_violation THEN
+        NULL;
+END
+$$;
+
+
+-- valid collection
 INSERT INTO public.collections (
     profile_id,
     product_id,
     status
 )
 VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    20,
+    '00000000-0000-0000-0000-0000000000aa',
+    901,
     'tried'
 );
 
-INSERT INTO public.collections (
-    profile_id,
-    product_id,
-    status
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    20,
-    'want_to_try'
-);
 
-INSERT INTO public.reviews (
-    profile_id,
-    product_id,
-    rating,
-    body
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    22,
-    4,
-    'Initial review.'
-);
+-- duplicate collection
+DO $$
+BEGIN
+    INSERT INTO public.collections (
+        profile_id,
+        product_id,
+        status
+    )
+    VALUES (
+        '00000000-0000-0000-0000-0000000000aa',
+        901,
+        'want_to_try'
+    );
 
-SELECT rating, updated_at
-FROM public.reviews
-WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
-  AND product_id = 22;
+    RAISE EXCEPTION 'TEST FAILED: duplicate collection was accepted';
+EXCEPTION
+    WHEN unique_violation THEN
+        NULL;
+END
+$$;
 
-  UPDATE public.reviews
-SET rating = 5
-WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
-  AND product_id = 22;
 
-  SELECT rating, updated_at
-FROM public.reviews
-WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
-  AND product_id = 22;
-
-  INSERT INTO public.reviews (
-    profile_id,
-    product_id,
-    rating,
-    body
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    21,
-    5,
-    'Excellent coffee.'
-);
-
-INSERT INTO public.collections (
-    profile_id,
-    product_id,
-    status
-)
-VALUES (
-    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
-    21,
-    'want_to_try'
-);
-
---------------------------------------------------BOOKINGS------------------------------------------------------------------------
+ROLLBACK;
