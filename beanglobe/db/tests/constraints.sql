@@ -453,3 +453,216 @@ VALUES (
     'ron',
     'https://example.com/test'
 );
+
+--------------------------------SHOPS & SHOP HOURS ------------------------------------------------------------
+
+INSERT INTO public.shops (
+    id,
+    name,
+    address,
+    location,
+    services,
+    is_demo
+)
+VALUES
+(
+    1,
+    'Test Cafe A',
+    'Test Address A',
+    extensions.ST_SetSRID(
+        extensions.ST_Point(23.5899, 46.7696),
+        4326
+    )::extensions.geography,
+    ARRAY['cafe', 'service'],
+    true
+),
+(
+    2,
+    'Test Cafe B',
+    'Test Address B',
+    extensions.ST_SetSRID(
+        extensions.ST_Point(23.6100, 46.7700),
+        4326
+    )::extensions.geography,
+    ARRAY['cafe', 'shop'],
+    true
+);
+
+SELECT id, name
+FROM public.shops
+WHERE extensions.ST_DWithin(
+    location,
+    extensions.ST_SetSRID(
+        extensions.ST_Point(23.5899, 46.7696),
+        4326
+    )::extensions.geography,
+    1000
+);
+
+INSERT INTO public.shops (
+    id,
+    name,
+    address,
+    location,
+    services
+)
+VALUES (
+    3,
+    'Invalid Shop',
+    'Test Address',
+    extensions.ST_SetSRID(
+        extensions.ST_Point(23.5950, 46.7700),
+        4326
+    )::extensions.geography,
+    ARRAY[]::TEXT[]
+);
+
+INSERT INTO public.shop_hours (
+    shop_id,
+    weekday,
+    opens,
+    closes
+)
+VALUES (
+    1,
+    1,
+    '18:00',
+    '09:00'
+);
+
+INSERT INTO public.shop_hours (
+    shop_id,
+    weekday,
+    opens,
+    closes
+)
+VALUES (
+    1,
+    1,
+    '09:00',
+    '18:00'
+);
+
+----------------------------------------------------REVIEWS & COLLECTIONS--------------------------------------------------------------
+
+-- Test data
+INSERT INTO public.products (id, product_type, name)
+VALUES
+    (20, 'coffee', 'Review Test Coffee'),
+    (21, 'coffee', 'Rating Test Coffee'),
+    (22, 'coffee', 'Update Test Coffee');
+
+    INSERT INTO public.reviews (
+    profile_id,
+    product_id,
+    rating,
+    body
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    20,
+    5,
+    'Great coffee.'
+);
+
+INSERT INTO public.reviews (
+    profile_id,
+    product_id,
+    rating,
+    body
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    20,
+    4,
+    'Second review.'
+);
+
+INSERT INTO public.reviews (
+    profile_id,
+    product_id,
+    rating,
+    body
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    21,
+    6,
+    'Invalid rating.'
+);
+
+INSERT INTO public.collections (
+    profile_id,
+    product_id,
+    status
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    20,
+    'tried'
+);
+
+INSERT INTO public.collections (
+    profile_id,
+    product_id,
+    status
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    20,
+    'want_to_try'
+);
+
+INSERT INTO public.reviews (
+    profile_id,
+    product_id,
+    rating,
+    body
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    22,
+    4,
+    'Initial review.'
+);
+
+SELECT rating, updated_at
+FROM public.reviews
+WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
+  AND product_id = 22;
+
+  UPDATE public.reviews
+SET rating = 5
+WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
+  AND product_id = 22;
+
+  SELECT rating, updated_at
+FROM public.reviews
+WHERE profile_id = 'bb68c013-d690-43a1-b76f-fe9384c8ae88'
+  AND product_id = 22;
+
+  INSERT INTO public.reviews (
+    profile_id,
+    product_id,
+    rating,
+    body
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    21,
+    5,
+    'Excellent coffee.'
+);
+
+INSERT INTO public.collections (
+    profile_id,
+    product_id,
+    status
+)
+VALUES (
+    'bb68c013-d690-43a1-b76f-fe9384c8ae88',
+    21,
+    'want_to_try'
+);
+
+--------------------------------------------------BOOKINGS------------------------------------------------------------------------

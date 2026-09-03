@@ -15,3 +15,9 @@ SELECT setval(
     COALESCE((SELECT MAX(id) FROM public.retailers), 1),
     (SELECT COUNT(*) > 0 FROM public.retailers)
 );
+
+SELECT setval(
+    pg_get_serial_sequence('public.shops', 'id'),
+    COALESCE((SELECT MAX(id) FROM public.shops), 1),
+    (SELECT COUNT(*) > 0 FROM public.shops)
+);
