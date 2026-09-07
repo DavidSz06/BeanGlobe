@@ -139,10 +139,12 @@ CREATE TABLE public.machine_details (
 
     has_dual_boiler BOOLEAN NOT NULL,
 
-    pump_pressure_bar NUMERIC
-        CHECK (pump_pressure_bar > 0),
+    pump_pressure_bar NUMERIC,
 
     PRIMARY KEY (product_id),
+
+    CONSTRAINT machine_details_pump_pressure_bar_check
+        CHECK (pump_pressure_bar > 0),
 
     CONSTRAINT machine_details_product_type_check
         CHECK (product_type = 'machine'),
