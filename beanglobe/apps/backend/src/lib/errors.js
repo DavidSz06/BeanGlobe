@@ -7,7 +7,8 @@ export class AppError extends Error {
             message === undefined ||
             clientMessage === undefined
         ) {
-            throw new TypeError("code, message and clientMessage are required", { cause });
+            throw new TypeError("code, message and clientMessage are required", cause === undefined ? {} : { cause });
+
         }
 
         super(message, cause === undefined ? {} : { cause });
