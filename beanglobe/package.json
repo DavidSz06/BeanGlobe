@@ -1,6 +1,7 @@
 {
   "name": "beanglobe",
   "private": true,
+  "type": "module",
   "description": "BeanGlobe — coffee discovery, reviews & matching platform",
   "workspaces": ["apps/*"]
 }
