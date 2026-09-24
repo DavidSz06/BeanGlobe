@@ -497,7 +497,8 @@ BEGIN
     IF TG_OP = 'INSERT' THEN
         IF NEW.status <> 'pending' THEN
             RAISE EXCEPTION 'Invalid initial booking status: %', NEW.status
-                USING ERRCODE = 'check_violation';
+                USING ERRCODE = 'check_violation',
+                      CONSTRAINT = 'bookings_initial_status_check';
         END IF;
 
         RETURN NEW;
@@ -508,7 +509,8 @@ BEGIN
         RAISE EXCEPTION
             'Invalid booking status transition: pending -> %',
             NEW.status
-            USING ERRCODE = 'check_violation';
+            USING ERRCODE = 'check_violation',
+                  CONSTRAINT = 'bookings_status_transition_check';
     END IF;
 
     IF OLD.status = 'confirmed'
@@ -516,7 +518,8 @@ BEGIN
         RAISE EXCEPTION
             'Invalid booking status transition: confirmed -> %',
             NEW.status
-            USING ERRCODE = 'check_violation';
+            USING ERRCODE = 'check_violation',
+                  CONSTRAINT = 'bookings_status_transition_check';
     END IF;
 
     IF OLD.status IN ('completed', 'cancelled')
@@ -525,7 +528,8 @@ BEGIN
             'Invalid booking status transition: % -> %',
             OLD.status,
             NEW.status
-            USING ERRCODE = 'check_violation';
+            USING ERRCODE = 'check_violation',
+                  CONSTRAINT = 'bookings_status_transition_check';
     END IF;
 
     RETURN NEW;

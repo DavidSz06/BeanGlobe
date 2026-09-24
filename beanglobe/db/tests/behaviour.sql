@@ -121,7 +121,12 @@ VALUES (
 
 
 -- Invalid initial state.
+-- The constraint name is checked too, not just the SQLSTATE: the backend's
+-- error map looks up the row by constraint name, so a trigger that stops
+-- setting it would turn a 409 into an alarming 500 with every test green.
 DO $$
+DECLARE
+    v_constraint TEXT;
 BEGIN
     INSERT INTO public.bookings (
         profile_id,
@@ -144,7 +149,13 @@ BEGIN
         'TEST FAILED: non-pending initial status was accepted';
 EXCEPTION
     WHEN check_violation THEN
-        NULL;
+        GET STACKED DIAGNOSTICS v_constraint = CONSTRAINT_NAME;
+
+        IF v_constraint IS DISTINCT FROM 'bookings_initial_status_check' THEN
+            RAISE EXCEPTION
+                'TEST FAILED: expected constraint bookings_initial_status_check, got %',
+                COALESCE(NULLIF(v_constraint, ''), '<none>');
+        END IF;
 END
 $$;
 
@@ -179,7 +190,10 @@ WHERE shop_id = 1
 
 
 -- completed -> pending must fail.
+-- The constraint name is part of the contract here as well (see above).
 DO $$
+DECLARE
+    v_constraint TEXT;
 BEGIN
     UPDATE public.bookings
     SET status = 'pending'
@@ -190,7 +204,13 @@ BEGIN
         'TEST FAILED: completed -> pending was accepted';
 EXCEPTION
     WHEN check_violation THEN
-        NULL;
+        GET STACKED DIAGNOSTICS v_constraint = CONSTRAINT_NAME;
+
+        IF v_constraint IS DISTINCT FROM 'bookings_status_transition_check' THEN
+            RAISE EXCEPTION
+                'TEST FAILED: expected constraint bookings_status_transition_check, got %',
+                COALESCE(NULLIF(v_constraint, ''), '<none>');
+        END IF;
 END
 $$;
 
