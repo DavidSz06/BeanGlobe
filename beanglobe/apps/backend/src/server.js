@@ -3,3 +3,14 @@
 // Keep this thin: NO routes, NO middleware logic here — that all lives in app.js.
 //
 // TODO: build Socratically.
+
+
+
+// const pool = createPool({ connectionString, ca, logger });
+// try {
+//   await query(pool, 'SELECT 1');
+// } catch (err) {
+//   logger.error('DB check failed at startup', err);
+//   process.exit(1);
+// }
+// app.listen(port);
